@@ -524,6 +524,7 @@ clnt_broadcast(prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
  * Create the client des authentication object. Obsoleted by
  * authdes_seccreate().
  */
+#if 0
 AUTH *
 authdes_create(servername, window, syncaddr, ckey)
 	char *servername;		/* network name of server */
@@ -551,6 +552,7 @@ fallback:
 	dummy = authdes_seccreate(servername, window, NULL, ckey);
 	return (dummy);
 }
+#endif
 
 /*
  * Create a client handle for a unix connection. Obsoleted by clnt_vc_create()

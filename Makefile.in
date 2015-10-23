@@ -79,13 +79,19 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@GSS_TRUE@am__append_1 = \
+@GSS_TRUE@			 tirpc/rpc/rpcsec_gss.h \
+@GSS_TRUE@			 tirpc/rpc/auth_gss.h \
+@GSS_TRUE@			 tirpc/rpc/svc_auth_gss.h
+
 subdir = .
 DIST_COMMON = INSTALL NEWS README AUTHORS ChangeLog \
 	$(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
-	$(srcdir)/libtirpc.pc.in $(nobase_include_HEADERS) \
-	$(noinst_HEADERS) COPYING THANKS TODO compile config.guess \
-	config.sub install-sh missing ltmain.sh
+	$(srcdir)/config.h.in $(srcdir)/libtirpc.pc.in \
+	$(am__nobase_include_HEADERS_DIST) $(noinst_HEADERS) COPYING \
+	THANKS TODO compile config.guess config.sub install-sh missing \
+	ltmain.sh
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
@@ -96,6 +102,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
+CONFIG_HEADER = config.h
 CONFIG_CLEAN_FILES = libtirpc.pc
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
@@ -155,6 +162,19 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(pkgconfigdir)" \
 	"$(DESTDIR)$(includedir)"
 DATA = $(pkgconfig_DATA)
+am__nobase_include_HEADERS_DIST = tirpc/netconfig.h \
+	tirpc/rpcsvc/crypt.x tirpc/rpcsvc/crypt.h tirpc/rpc/xdr.h \
+	tirpc/rpc/types.h tirpc/rpc/svc_soc.h tirpc/rpc/svc.h \
+	tirpc/rpc/svc_dg.h tirpc/rpc/svc_auth.h tirpc/rpc/rpc_msg.h \
+	tirpc/rpc/rpc.h tirpc/rpc/rpcent.h tirpc/rpc/rpc_com.h \
+	tirpc/rpc/rpcb_prot.x tirpc/rpc/rpcb_prot.h \
+	tirpc/rpc/rpcb_clnt.h tirpc/rpc/raw.h tirpc/rpc/pmap_rmt.h \
+	tirpc/rpc/pmap_prot.h tirpc/rpc/pmap_clnt.h \
+	tirpc/rpc/nettype.h tirpc/rpc/key_prot.h tirpc/rpc/des.h \
+	tirpc/rpc/des_crypt.h tirpc/rpc/clnt_stat.h \
+	tirpc/rpc/clnt_soc.h tirpc/rpc/clnt.h tirpc/rpc/auth_unix.h \
+	tirpc/rpc/auth_des.h tirpc/rpc/auth.h tirpc/rpc/rpcsec_gss.h \
+	tirpc/rpc/auth_gss.h tirpc/rpc/svc_auth_gss.h
 HEADERS = $(nobase_include_HEADERS) $(noinst_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
@@ -164,7 +184,8 @@ am__recursive_targets = \
   $(am__extra_recursive_targets)
 AM_RECURSIVE_TARGETS = $(am__recursive_targets:-recursive=) TAGS CTAGS \
 	cscope distdir dist dist-all distcheck
-am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
+am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) \
+	$(LISP)config.h.in
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
 # *not* preserved.
@@ -260,6 +281,7 @@ INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
+KRB5_CONFIG = @KRB5_CONFIG@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
@@ -268,7 +290,6 @@ LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
-MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
@@ -351,48 +372,28 @@ noinst_HEADERS = tirpc/reentrant.h \
 			 tirpc/libc_private.h \
 			 tirpc/un-namespace.h
 
-nobase_include_HEADERS = tirpc/netconfig.h \
-			 tirpc/rpcsvc/crypt.x \
-			 tirpc/rpcsvc/crypt.h \
-			 tirpc/rpc/xdr.h \
-			 tirpc/rpc/types.h \
-			 tirpc/rpc/svc_soc.h \
-			 tirpc/rpc/svc.h \
-			 tirpc/rpc/svc_dg.h \
-			 tirpc/rpc/svc_auth.h \
-			 tirpc/rpc/rpc_msg.h \
-			 tirpc/rpc/rpc.h \
-			 tirpc/rpc/rpcent.h \
-			 tirpc/rpc/rpc_com.h \
-			 tirpc/rpc/rpcb_prot.x \
-			 tirpc/rpc/rpcb_prot.h \
-			 tirpc/rpc/rpcb_clnt.h \
-			 tirpc/rpc/raw.h \
-			 tirpc/rpc/pmap_rmt.h \
-			 tirpc/rpc/pmap_prot.h \
-			 tirpc/rpc/pmap_clnt.h \
-			 tirpc/rpc/nettype.h \
-			 tirpc/rpc/des.h \
-			 tirpc/rpc/des_crypt.h \
-			 tirpc/rpc/clnt_stat.h \
-			 tirpc/rpc/clnt_soc.h \
-			 tirpc/rpc/clnt.h \
-			 tirpc/rpc/auth_unix.h \
-			 tirpc/rpc/auth_kerb.h \
-			 tirpc/rpc/auth.h \
-			 tirpc/rpc/auth_gss.h \
-			 tirpc/rpc/auth_des.h
-
+nobase_include_HEADERS = tirpc/netconfig.h tirpc/rpcsvc/crypt.x \
+	tirpc/rpcsvc/crypt.h tirpc/rpc/xdr.h tirpc/rpc/types.h \
+	tirpc/rpc/svc_soc.h tirpc/rpc/svc.h tirpc/rpc/svc_dg.h \
+	tirpc/rpc/svc_auth.h tirpc/rpc/rpc_msg.h tirpc/rpc/rpc.h \
+	tirpc/rpc/rpcent.h tirpc/rpc/rpc_com.h tirpc/rpc/rpcb_prot.x \
+	tirpc/rpc/rpcb_prot.h tirpc/rpc/rpcb_clnt.h tirpc/rpc/raw.h \
+	tirpc/rpc/pmap_rmt.h tirpc/rpc/pmap_prot.h \
+	tirpc/rpc/pmap_clnt.h tirpc/rpc/nettype.h tirpc/rpc/key_prot.h \
+	tirpc/rpc/des.h tirpc/rpc/des_crypt.h tirpc/rpc/clnt_stat.h \
+	tirpc/rpc/clnt_soc.h tirpc/rpc/clnt.h tirpc/rpc/auth_unix.h \
+	tirpc/rpc/auth_des.h tirpc/rpc/auth.h $(am__append_1)
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libtirpc.pc
 CLEANFILES = cscope.* *~
 DISTCLEANFILES = Makefile.in libtirpc*.tar.gz
-all: all-recursive
+all: config.h
+	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
 .SUFFIXES:
 am--refresh: Makefile
 	@:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -419,11 +420,26 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
 
-$(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
+$(top_srcdir)/configure:  $(am__configure_deps)
 	$(am__cd) $(srcdir) && $(AUTOCONF)
-$(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
+$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
+
+config.h: stamp-h1
+	@test -f $@ || rm -f stamp-h1
+	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) stamp-h1
+
+stamp-h1: $(srcdir)/config.h.in $(top_builddir)/config.status
+	@rm -f stamp-h1
+	cd $(top_builddir) && $(SHELL) ./config.status config.h
+$(srcdir)/config.h.in:  $(am__configure_deps) 
+	($(am__cd) $(top_srcdir) && $(AUTOHEADER))
+	rm -f stamp-h1
+	touch $@
+
+distclean-hdr:
+	-rm -f config.h stamp-h1
 libtirpc.pc: $(top_builddir)/config.status $(srcdir)/libtirpc.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 
@@ -777,7 +793,7 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-recursive
-all-am: Makefile $(DATA) $(HEADERS)
+all-am: Makefile $(DATA) $(HEADERS) config.h
 installdirs: installdirs-recursive
 installdirs-am:
 	for dir in "$(DESTDIR)$(pkgconfigdir)" "$(DESTDIR)$(includedir)"; do \
@@ -822,8 +838,8 @@ clean-am: clean-generic clean-libtool mostlyclean-am
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -f Makefile
-distclean-am: clean-am distclean-generic distclean-libtool \
-	distclean-tags
+distclean-am: clean-am distclean-generic distclean-hdr \
+	distclean-libtool distclean-tags
 
 dvi: dvi-recursive
 
@@ -885,24 +901,24 @@ ps-am:
 
 uninstall-am: uninstall-nobase_includeHEADERS uninstall-pkgconfigDATA
 
-.MAKE: $(am__recursive_targets) install-am install-strip
+.MAKE: $(am__recursive_targets) all install-am install-strip
 
 .PHONY: $(am__recursive_targets) CTAGS GTAGS TAGS all all-am \
 	am--refresh check check-am clean clean-cscope clean-generic \
 	clean-libtool cscope cscopelist-am ctags ctags-am dist \
 	dist-all dist-bzip2 dist-gzip dist-lzip dist-shar dist-tarZ \
 	dist-xz dist-zip distcheck distclean distclean-generic \
-	distclean-libtool distclean-tags distcleancheck distdir \
-	distuninstallcheck dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-nobase_includeHEADERS install-pdf install-pdf-am \
-	install-pkgconfigDATA install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs installdirs-am \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am \
+	distclean-hdr distclean-libtool distclean-tags distcleancheck \
+	distdir distuninstallcheck dvi dvi-am html html-am info \
+	info-am install install-am install-data install-data-am \
+	install-dvi install-dvi-am install-exec install-exec-am \
+	install-html install-html-am install-info install-info-am \
+	install-man install-nobase_includeHEADERS install-pdf \
+	install-pdf-am install-pkgconfigDATA install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
+	ps ps-am tags tags-am uninstall uninstall-am \
 	uninstall-nobase_includeHEADERS uninstall-pkgconfigDATA
 
 

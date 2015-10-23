@@ -77,8 +77,10 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@GSS_TRUE@am__append_1 = $(RPCSEC_MANS)
 subdir = man
-DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am
+DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
+	$(dist_man3_MANS) $(dist_man5_MANS)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
@@ -87,6 +89,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
+CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
@@ -139,7 +142,7 @@ man3dir = $(mandir)/man3
 am__installdirs = "$(DESTDIR)$(man3dir)" "$(DESTDIR)$(man5dir)"
 man5dir = $(mandir)/man5
 NROFF = nroff
-MANS = $(man3_MANS) $(man5_MANS)
+MANS = $(dist_man3_MANS) $(dist_man5_MANS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
@@ -175,6 +178,7 @@ INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
+KRB5_CONFIG = @KRB5_CONFIG@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
@@ -183,7 +187,6 @@ LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
-MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
@@ -259,19 +262,37 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-man5_MANS = netconfig.5
-man3_MANS = bindresvport.3t des_crypt.3t getnetconfig.3t getnetpath.3t \
-		getrpcent.3t getrpcport.3t rpc.3t rpc_clnt_auth.3t rpc_clnt_calls.3t \
-		rpc_clnt_create.3t rpc_secure.3t rpc_soc.3t rpc_svc_calls.3t \
-		rpc_svc_create.3t rpc_svc_err.3t rpc_svc_reg.3t rpc_xdr.3t rtime.3t
+LOOKUP_MANS = getrpcent.3t getrpcport.3t
+NETCONFIG_MANS = getnetconfig.3t getnetpath.3t
+BIND_MANS = bindresvport.3t
+COMPAT_MANS = des_crypt.3t rpc_soc.3t rpc_secure.3t rtime.3t
+CLIENT_MANS = rpc_clnt_auth.3t rpc_clnt_calls.3t rpc_clnt_create.3t \
+			  rpcbind.3t
 
-EXTRA_DIST = $(man5_MANS) $(man3_MANS)
+SERVER_MANS = rpc_svc_calls.3t rpc_svc_create.3t rpc_svc_err.3t \
+			  rpc_svc_reg.3t
+
+GENERIC_MANS = rpc.3t rpc_xdr.3t
+RPCSEC_MANS = rpcsec_gss.3t rpc_gss_get_error.3t \
+			  rpc_gss_get_mechanisms.3t rpc_gss_get_mech_info.3t \
+			  rpc_gss_get_versions.3t rpc_gss_is_installed.3t \
+			  rpc_gss_mech_to_oid.3t rpc_gss_qop_to_num.3t \
+			  rpc_gss_max_data_length.3t rpc_gss_seccreate.3t \
+			  rpc_gss_set_defaults.3t rpc_gss_getcred.3t \
+			  rpc_gss_get_principal_name.3t rpc_gss_set_callback.3t \
+			  rpc_gss_set_svc_name.3t rpc_gss_svc_max_data_length.3t
+
+dist_man5_MANS = netconfig.5
+dist_man3_MANS = $(LOOKUP_MANS) $(NETCONFIG_MANS) $(BIND_MANS) \
+	$(GENERIC_MANS) $(COMPAT_MANS) $(CLIENT_MANS) $(SERVER_MANS) \
+	$(am__append_1)
+EXTRA_DIST = publickey.3t publickey.5 rpc.5
 CLEANFILES = cscope.* *~
 DISTCLEANFILES = Makefile.in
 all: all-am
 
 .SUFFIXES:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -296,9 +317,9 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 
-$(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
+$(top_srcdir)/configure:  $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-$(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
+$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 
@@ -307,9 +328,9 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
-install-man3: $(man3_MANS)
+install-man3: $(dist_man3_MANS)
 	@$(NORMAL_INSTALL)
-	@list1='$(man3_MANS)'; \
+	@list1='$(dist_man3_MANS)'; \
 	list2=''; \
 	test -n "$(man3dir)" \
 	  && test -n "`echo $$list1$$list2`" \
@@ -343,14 +364,14 @@ install-man3: $(man3_MANS)
 
 uninstall-man3:
 	@$(NORMAL_UNINSTALL)
-	@list='$(man3_MANS)'; test -n "$(man3dir)" || exit 0; \
+	@list='$(dist_man3_MANS)'; test -n "$(man3dir)" || exit 0; \
 	files=`{ for i in $$list; do echo "$$i"; done; \
 	} | sed -e 's,.*/,,;h;s,.*\.,,;s,^[^3][0-9a-z]*$$,3,;x' \
 	      -e 's,\.[0-9a-z]*$$,,;$(transform);G;s,\n,.,'`; \
 	dir='$(DESTDIR)$(man3dir)'; $(am__uninstall_files_from_dir)
-install-man5: $(man5_MANS)
+install-man5: $(dist_man5_MANS)
 	@$(NORMAL_INSTALL)
-	@list1='$(man5_MANS)'; \
+	@list1='$(dist_man5_MANS)'; \
 	list2=''; \
 	test -n "$(man5dir)" \
 	  && test -n "`echo $$list1$$list2`" \
@@ -384,7 +405,7 @@ install-man5: $(man5_MANS)
 
 uninstall-man5:
 	@$(NORMAL_UNINSTALL)
-	@list='$(man5_MANS)'; test -n "$(man5dir)" || exit 0; \
+	@list='$(dist_man5_MANS)'; test -n "$(man5dir)" || exit 0; \
 	files=`{ for i in $$list; do echo "$$i"; done; \
 	} | sed -e 's,.*/,,;h;s,.*\.,,;s,^[^5][0-9a-z]*$$,5,;x' \
 	      -e 's,\.[0-9a-z]*$$,,;$(transform);G;s,\n,.,'`; \

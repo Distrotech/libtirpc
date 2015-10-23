@@ -79,8 +79,11 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@GSS_TRUE@am__append_1 = auth_gss.c authgss_prot.c svc_auth_gss.c
-@GSS_TRUE@am__append_2 = $(GSSAPI_LIBS)
+@SYMVERS_TRUE@am__append_1 = -Wl,--version-script=$(srcdir)/libtirpc.map
+@GSS_TRUE@am__append_2 = auth_gss.c authgss_prot.c svc_auth_gss.c \
+@GSS_TRUE@			   rpc_gss_utils.c
+
+@GSS_TRUE@am__append_3 = $(GSSAPI_LIBS)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp $(noinst_HEADERS)
@@ -92,6 +95,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
+CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
@@ -134,12 +138,15 @@ am__libtirpc_la_SOURCES_DIST = auth_none.c auth_unix.c authunix_prot.c \
 	rpcb_clnt.c rpcb_prot.c rpcb_st_xdr.c svc.c svc_auth.c \
 	svc_dg.c svc_auth_unix.c svc_auth_none.c svc_generic.c \
 	svc_raw.c svc_run.c svc_simple.c svc_vc.c getpeereid.c \
-	auth_time.c authdes_prot.c xdr.c xdr_rec.c xdr_array.c \
-	xdr_float.c xdr_mem.c xdr_reference.c xdr_stdio.c auth_gss.c \
-	authgss_prot.c svc_auth_gss.c
+	auth_time.c auth_des.c authdes_prot.c debug.c xdr.c xdr_rec.c \
+	xdr_array.c xdr_float.c xdr_mem.c xdr_reference.c xdr_stdio.c \
+	auth_gss.c authgss_prot.c svc_auth_gss.c rpc_gss_utils.c \
+	key_call.c key_prot_xdr.c getpublickey.c netname.c netnamer.c \
+	rtime.c
 @GSS_TRUE@am__objects_1 = libtirpc_la-auth_gss.lo \
 @GSS_TRUE@	libtirpc_la-authgss_prot.lo \
-@GSS_TRUE@	libtirpc_la-svc_auth_gss.lo
+@GSS_TRUE@	libtirpc_la-svc_auth_gss.lo \
+@GSS_TRUE@	libtirpc_la-rpc_gss_utils.lo
 am_libtirpc_la_OBJECTS = libtirpc_la-auth_none.lo \
 	libtirpc_la-auth_unix.lo libtirpc_la-authunix_prot.lo \
 	libtirpc_la-bindresvport.lo libtirpc_la-clnt_bcast.lo \
@@ -162,11 +169,14 @@ am_libtirpc_la_OBJECTS = libtirpc_la-auth_none.lo \
 	libtirpc_la-svc_raw.lo libtirpc_la-svc_run.lo \
 	libtirpc_la-svc_simple.lo libtirpc_la-svc_vc.lo \
 	libtirpc_la-getpeereid.lo libtirpc_la-auth_time.lo \
-	libtirpc_la-authdes_prot.lo libtirpc_la-xdr.lo \
-	libtirpc_la-xdr_rec.lo libtirpc_la-xdr_array.lo \
-	libtirpc_la-xdr_float.lo libtirpc_la-xdr_mem.lo \
-	libtirpc_la-xdr_reference.lo libtirpc_la-xdr_stdio.lo \
-	$(am__objects_1)
+	libtirpc_la-auth_des.lo libtirpc_la-authdes_prot.lo \
+	libtirpc_la-debug.lo libtirpc_la-xdr.lo libtirpc_la-xdr_rec.lo \
+	libtirpc_la-xdr_array.lo libtirpc_la-xdr_float.lo \
+	libtirpc_la-xdr_mem.lo libtirpc_la-xdr_reference.lo \
+	libtirpc_la-xdr_stdio.lo $(am__objects_1) \
+	libtirpc_la-key_call.lo libtirpc_la-key_prot_xdr.lo \
+	libtirpc_la-getpublickey.lo libtirpc_la-netname.lo \
+	libtirpc_la-netnamer.lo libtirpc_la-rtime.lo
 libtirpc_la_OBJECTS = $(am_libtirpc_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -187,7 +197,7 @@ AM_V_at = $(am__v_at_@AM_V@)
 am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
 am__v_at_0 = @
 am__v_at_1 = 
-DEFAULT_INCLUDES = -I.@am__isrc@
+DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
@@ -270,6 +280,7 @@ INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
+KRB5_CONFIG = @KRB5_CONFIG@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
@@ -278,7 +289,6 @@ LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
-MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
@@ -354,9 +364,9 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-noinst_HEADERS = rpc_com.h
-AM_CPPFLAGS = -I$(top_srcdir)/tirpc -DPORTMAP -DINET6 \
-		-D_GNU_SOURCE -Wall -pipe  
+noinst_HEADERS = rpc_com.h debug.h
+AM_CPPFLAGS = -I$(top_srcdir)/tirpc -include config.h -DPORTMAP -DINET6 \
+		-D_GNU_SOURCE -Wall -pipe
 
 lib_LTLIBRARIES = libtirpc.la
 
@@ -389,7 +399,8 @@ lib_LTLIBRARIES = libtirpc.la
 # release number of your package. This is an abuse that only fosters
 # misunderstanding of the purpose of library versions."
 #
-libtirpc_la_LDFLAGS = -lpthread -version-info 1:10:0 $(am__append_2)
+libtirpc_la_LDFLAGS = -lpthread -version-info 1:10:0 $(am__append_1) \
+	$(am__append_3)
 libtirpc_la_SOURCES = auth_none.c auth_unix.c authunix_prot.c \
 	bindresvport.c clnt_bcast.c clnt_dg.c clnt_generic.c \
 	clnt_perror.c clnt_raw.c clnt_simple.c clnt_vc.c \
@@ -400,9 +411,10 @@ libtirpc_la_SOURCES = auth_none.c auth_unix.c authunix_prot.c \
 	rpcb_clnt.c rpcb_prot.c rpcb_st_xdr.c svc.c svc_auth.c \
 	svc_dg.c svc_auth_unix.c svc_auth_none.c svc_generic.c \
 	svc_raw.c svc_run.c svc_simple.c svc_vc.c getpeereid.c \
-	auth_time.c authdes_prot.c xdr.c xdr_rec.c xdr_array.c \
-	xdr_float.c xdr_mem.c xdr_reference.c xdr_stdio.c \
-	$(am__append_1)
+	auth_time.c auth_des.c authdes_prot.c debug.c xdr.c xdr_rec.c \
+	xdr_array.c xdr_float.c xdr_mem.c xdr_reference.c xdr_stdio.c \
+	$(am__append_2) key_call.c key_prot_xdr.c getpublickey.c \
+	netname.c netnamer.c rtime.c
 @GSS_TRUE@libtirpc_la_CFLAGS = -DHAVE_RPCSEC_GSS $(GSSAPI_CFLAGS)
 CLEANFILES = cscope.* *~
 DISTCLEANFILES = Makefile.in
@@ -410,7 +422,7 @@ all: all-am
 
 .SUFFIXES:
 .SUFFIXES: .c .lo .o .obj
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -435,9 +447,9 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 
-$(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
+$(top_srcdir)/configure:  $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-$(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
+$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 
@@ -485,6 +497,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-auth_des.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-auth_gss.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-auth_none.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-auth_time.Plo@am__quote@
@@ -500,12 +513,18 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-clnt_raw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-clnt_simple.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-clnt_vc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-debug.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-getnetconfig.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-getnetpath.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-getpeereid.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-getpublickey.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-getrpcent.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-getrpcport.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-key_call.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-key_prot_xdr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-mt_misc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-netname.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-netnamer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-pmap_clnt.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-pmap_getmaps.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-pmap_getport.Plo@am__quote@
@@ -516,11 +535,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-rpc_commondata.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-rpc_dtablesize.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-rpc_generic.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-rpc_gss_utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-rpc_prot.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-rpc_soc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-rpcb_clnt.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-rpcb_prot.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-rpcb_st_xdr.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-rtime.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-svc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-svc_auth.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtirpc_la-svc_auth_gss.Plo@am__quote@
@@ -862,12 +883,26 @@ libtirpc_la-auth_time.lo: auth_time.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -c -o libtirpc_la-auth_time.lo `test -f 'auth_time.c' || echo '$(srcdir)/'`auth_time.c
 
+libtirpc_la-auth_des.lo: auth_des.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -MT libtirpc_la-auth_des.lo -MD -MP -MF $(DEPDIR)/libtirpc_la-auth_des.Tpo -c -o libtirpc_la-auth_des.lo `test -f 'auth_des.c' || echo '$(srcdir)/'`auth_des.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libtirpc_la-auth_des.Tpo $(DEPDIR)/libtirpc_la-auth_des.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='auth_des.c' object='libtirpc_la-auth_des.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -c -o libtirpc_la-auth_des.lo `test -f 'auth_des.c' || echo '$(srcdir)/'`auth_des.c
+
 libtirpc_la-authdes_prot.lo: authdes_prot.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -MT libtirpc_la-authdes_prot.lo -MD -MP -MF $(DEPDIR)/libtirpc_la-authdes_prot.Tpo -c -o libtirpc_la-authdes_prot.lo `test -f 'authdes_prot.c' || echo '$(srcdir)/'`authdes_prot.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libtirpc_la-authdes_prot.Tpo $(DEPDIR)/libtirpc_la-authdes_prot.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='authdes_prot.c' object='libtirpc_la-authdes_prot.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -c -o libtirpc_la-authdes_prot.lo `test -f 'authdes_prot.c' || echo '$(srcdir)/'`authdes_prot.c
+
+libtirpc_la-debug.lo: debug.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -MT libtirpc_la-debug.lo -MD -MP -MF $(DEPDIR)/libtirpc_la-debug.Tpo -c -o libtirpc_la-debug.lo `test -f 'debug.c' || echo '$(srcdir)/'`debug.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libtirpc_la-debug.Tpo $(DEPDIR)/libtirpc_la-debug.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='debug.c' object='libtirpc_la-debug.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -c -o libtirpc_la-debug.lo `test -f 'debug.c' || echo '$(srcdir)/'`debug.c
 
 libtirpc_la-xdr.lo: xdr.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -MT libtirpc_la-xdr.lo -MD -MP -MF $(DEPDIR)/libtirpc_la-xdr.Tpo -c -o libtirpc_la-xdr.lo `test -f 'xdr.c' || echo '$(srcdir)/'`xdr.c
@@ -938,6 +973,55 @@ libtirpc_la-svc_auth_gss.lo: svc_auth_gss.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='svc_auth_gss.c' object='libtirpc_la-svc_auth_gss.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -c -o libtirpc_la-svc_auth_gss.lo `test -f 'svc_auth_gss.c' || echo '$(srcdir)/'`svc_auth_gss.c
+
+libtirpc_la-rpc_gss_utils.lo: rpc_gss_utils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -MT libtirpc_la-rpc_gss_utils.lo -MD -MP -MF $(DEPDIR)/libtirpc_la-rpc_gss_utils.Tpo -c -o libtirpc_la-rpc_gss_utils.lo `test -f 'rpc_gss_utils.c' || echo '$(srcdir)/'`rpc_gss_utils.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libtirpc_la-rpc_gss_utils.Tpo $(DEPDIR)/libtirpc_la-rpc_gss_utils.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rpc_gss_utils.c' object='libtirpc_la-rpc_gss_utils.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -c -o libtirpc_la-rpc_gss_utils.lo `test -f 'rpc_gss_utils.c' || echo '$(srcdir)/'`rpc_gss_utils.c
+
+libtirpc_la-key_call.lo: key_call.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -MT libtirpc_la-key_call.lo -MD -MP -MF $(DEPDIR)/libtirpc_la-key_call.Tpo -c -o libtirpc_la-key_call.lo `test -f 'key_call.c' || echo '$(srcdir)/'`key_call.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libtirpc_la-key_call.Tpo $(DEPDIR)/libtirpc_la-key_call.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='key_call.c' object='libtirpc_la-key_call.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -c -o libtirpc_la-key_call.lo `test -f 'key_call.c' || echo '$(srcdir)/'`key_call.c
+
+libtirpc_la-key_prot_xdr.lo: key_prot_xdr.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -MT libtirpc_la-key_prot_xdr.lo -MD -MP -MF $(DEPDIR)/libtirpc_la-key_prot_xdr.Tpo -c -o libtirpc_la-key_prot_xdr.lo `test -f 'key_prot_xdr.c' || echo '$(srcdir)/'`key_prot_xdr.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libtirpc_la-key_prot_xdr.Tpo $(DEPDIR)/libtirpc_la-key_prot_xdr.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='key_prot_xdr.c' object='libtirpc_la-key_prot_xdr.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -c -o libtirpc_la-key_prot_xdr.lo `test -f 'key_prot_xdr.c' || echo '$(srcdir)/'`key_prot_xdr.c
+
+libtirpc_la-getpublickey.lo: getpublickey.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -MT libtirpc_la-getpublickey.lo -MD -MP -MF $(DEPDIR)/libtirpc_la-getpublickey.Tpo -c -o libtirpc_la-getpublickey.lo `test -f 'getpublickey.c' || echo '$(srcdir)/'`getpublickey.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libtirpc_la-getpublickey.Tpo $(DEPDIR)/libtirpc_la-getpublickey.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='getpublickey.c' object='libtirpc_la-getpublickey.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -c -o libtirpc_la-getpublickey.lo `test -f 'getpublickey.c' || echo '$(srcdir)/'`getpublickey.c
+
+libtirpc_la-netname.lo: netname.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -MT libtirpc_la-netname.lo -MD -MP -MF $(DEPDIR)/libtirpc_la-netname.Tpo -c -o libtirpc_la-netname.lo `test -f 'netname.c' || echo '$(srcdir)/'`netname.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libtirpc_la-netname.Tpo $(DEPDIR)/libtirpc_la-netname.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='netname.c' object='libtirpc_la-netname.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -c -o libtirpc_la-netname.lo `test -f 'netname.c' || echo '$(srcdir)/'`netname.c
+
+libtirpc_la-netnamer.lo: netnamer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -MT libtirpc_la-netnamer.lo -MD -MP -MF $(DEPDIR)/libtirpc_la-netnamer.Tpo -c -o libtirpc_la-netnamer.lo `test -f 'netnamer.c' || echo '$(srcdir)/'`netnamer.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libtirpc_la-netnamer.Tpo $(DEPDIR)/libtirpc_la-netnamer.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='netnamer.c' object='libtirpc_la-netnamer.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -c -o libtirpc_la-netnamer.lo `test -f 'netnamer.c' || echo '$(srcdir)/'`netnamer.c
+
+libtirpc_la-rtime.lo: rtime.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -MT libtirpc_la-rtime.lo -MD -MP -MF $(DEPDIR)/libtirpc_la-rtime.Tpo -c -o libtirpc_la-rtime.lo `test -f 'rtime.c' || echo '$(srcdir)/'`rtime.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libtirpc_la-rtime.Tpo $(DEPDIR)/libtirpc_la-rtime.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rtime.c' object='libtirpc_la-rtime.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtirpc_la_CFLAGS) $(CFLAGS) -c -o libtirpc_la-rtime.lo `test -f 'rtime.c' || echo '$(srcdir)/'`rtime.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

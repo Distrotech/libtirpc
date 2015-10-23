@@ -10,20 +10,32 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
+/* Define to 1 if you have the `endrpcent' function. */
+#undef HAVE_ENDRPCENT
+
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
+
+/* Define to 1 if you have the <features.h> header file. */
+#undef HAVE_FEATURES_H
+
+/* Define to 1 if you have the `getrpcbyname' function. */
+#undef HAVE_GETRPCBYNAME
+
+/* Define to 1 if you have the `getrpcbynumber' function. */
+#undef HAVE_GETRPCBYNUMBER
+
+/* Define to 1 if you have the `getrpcent' function. */
+#undef HAVE_GETRPCENT
+
+/* Define to 1 if you have the <gssapi/gssapi_ext.h> header file. */
+#undef HAVE_GSSAPI_GSSAPI_EXT_H
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
-/* Define to 1 if you have the `gssapi' library (-lgssapi). */
-#undef HAVE_LIBGSSAPI
-
 /* Define to 1 if you have the <libintl.h> header file. */
 #undef HAVE_LIBINTL_H
-
-/* Define to 1 if you have the `nsl' library (-lnsl). */
-#undef HAVE_LIBNSL
 
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #undef HAVE_LIBPTHREAD
@@ -45,6 +57,9 @@
 
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #undef HAVE_NETINET_IN_H
+
+/* Define to 1 if you have the `setrpcent' function. */
+#undef HAVE_SETRPCENT
 
 /* Define to 1 if you have the <stddef.h> header file. */
 #undef HAVE_STDDEF_H
